@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cartera — Radar de mercado</title>
+<meta name="theme-color" content="#12141A" />
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%2312141A%22/><text x=%2250%22 y=%2268%22 font-size=%2260%22 text-anchor=%22middle%22 fill=%22%23C9A24B%22>◆</text></svg>" />
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%2312141A%22/><text x=%2250%22 y=%2268%22 font-size=%2260%22 text-anchor=%22middle%22 fill=%22%23C9A24B%22>◆</text></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #12141A;
+    --surface: #191C24;
+    --hairline: #2C3038;
+    --gold: #C9A24B;
+    --up: #5E8C7A;
+    --down: #B5583F;
+    --text: #EDEAE3;
+    --muted: #8B8F99;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    background: var(--ink);
+    color: var(--text);
+    font-family: 'Public Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    padding: 0 20px 80px;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  header {
+    padding: 40px 0 24px;
+    border-bottom: 1px solid var(--hairline);
+    margin-bottom: 28px;
+  }
+  header .date {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 34px;
+    line-height: 1.15;
+    margin: 6px 0 0;
+    color: var(--text);
+  }
+  h1 em {
+    font-style: italic;
+    color: var(--gold);
+  }
+  section { margin-bottom: 40px; }
+  section h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 20px;
+    margin: 0 0 4px;
+  }
+  section .sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+  .news-item {
+    padding: 18px 0;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .news-item:first-of-type { padding-top: 0; }
+  .news-score {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--gold);
+    margin-bottom: 6px;
+    display: block;
+  }
+  .news-item p {
+    margin: 0 0 8px;
+    font-size: 15.5px;
+    line-height: 1.5;
+  }
+  .news-item a {
+    font-size: 13px;
+    color: var(--muted);
+    text-decoration: none;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .news-item a:hover { color: var(--gold); border-color: var(--gold); }
+  .trade-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--hairline);
+    font-size: 14.5px;
+  }
+  .trade-row .who { color: var(--text); }
+  .trade-row .ticker {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+  }
+  .trade-row .buy { color: var(--up); }
+  .trade-row .sell { color: var(--down); }
+  .empty {
+    color: var(--muted);
+    font-size: 14px;
+    padding: 12px 0;
+  }
+  footer {
+    color: var(--muted);
+    font-size: 12px;
+    text-align: center;
+    padding-top: 24px;
+    border-top: 1px solid var(--hairline);
+  }
+  .refresh-btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    background: none;
+    border: 1px solid var(--hairline);
+    border-radius: 4px;
+    padding: 8px 14px;
+    cursor: pointer;
+    margin-top: 20px;
+  }
+  .refresh-btn:hover { color: var(--gold); border-color: var(--gold); }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="date" id="updated-at">cargando...</span>
+  <h1>Radar de <em>mercado</em></h1>
+</header>
+
+<section>
+  <h2>Noticias relevantes</h2>
+  <div class="sub">Filtradas para que solo leas lo que importa</div>
+  <div id="news-list"><div class="empty">Cargando...</div></div>
+</section>
+
+<section>
+  <h2>Movimientos del Congreso (EE.UU.)</h2>
+  <div class="sub">Declaraciones públicas bajo la STOCK Act — con retraso de hasta 45 días</div>
+  <div id="trades-list"><div class="empty">Cargando...</div></div>
+</section>
+
+<button class="refresh-btn" onclick="loadData()">↻ Actualizar</button>
+
+<footer>
+  Esto es información, no una recomendación de inversión.
+</footer>
+
+<script>
+  async function loadData() {
+    try {
+      const res = await fetch('data.json?_=' + Date.now());
+      const data = await res.json();
+      render(data);
+    } catch (e) {
+      document.getElementById('news-list').innerHTML = '<div class="empty">Todavía no hay datos. Espera a la primera ejecución del bot.</div>';
+      document.getElementById('trades-list').innerHTML = '';
+    }
+  }
+
+  function render(data) {
+    const updated = new Date(data.updated_at);
+    document.getElementById('updated-at').textContent =
+      'Actualizado ' + updated.toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' });
+
+    const newsList = document.getElementById('news-list');
+    if (!data.top_news || data.top_news.length === 0) {
+      newsList.innerHTML = '<div class="empty">Nada por encima del umbral de relevancia ahora mismo.</div>';
+    } else {
+      newsList.innerHTML = data.top_news.map(n => `
+        <div class="news-item">
+          <span class="news-score">${n.relevancia}/10</span>
+          <p>${n.resumen_claude}</p>
+          <a href="${n.link}" target="_blank" rel="noopener">${n.source || 'Ver fuente'}</a>
+        </div>
+      `).join('');
+    }
+
+    const tradesList = document.getElementById('trades-list');
+    if (!data.congress_trades || data.congress_trades.length === 0) {
+      tradesList.innerHTML = '<div class="empty">Sin movimientos nuevos en tu lista de seguimiento.</div>';
+    } else {
+      tradesList.innerHTML = data.congress_trades.map(t => {
+        const tx = (t.Transaction || '').toLowerCase();
+        const cls = tx.includes('purchase') || tx.includes('buy') ? 'buy' : (tx.includes('sale') || tx.includes('sell') ? 'sell' : '');
+        return `
+          <div class="trade-row">
+            <span class="who">${t.Representative || t.Senator || '—'}</span>
+            <span class="ticker ${cls}">${t.Transaction || ''} ${t.Ticker || ''}</span>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+
+  loadData();
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+</script>
+
+</body>
+</html>
